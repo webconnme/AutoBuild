@@ -1,8 +1,8 @@
 /**
  * The MIT License (MIT)
  *
+ * Copyright (c) 2015 David You <david@webconn.me>
  * Copyright (c) 2015 Jane Lee <jane@webconn.me>
- * Copyright (c) 2015 Edward Kim <edward@webconn.me>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
