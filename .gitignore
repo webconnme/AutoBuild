@@ -1,0 +1,10 @@
+src/github.com/
+src/golang.org/
+src/google.golang.org/
+src/bak/
+bin/
+pkg/
+.idea/
+*.iml
+client_secret.json
+token.json

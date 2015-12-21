@@ -8,14 +8,27 @@ import (
 	"fmt"
 	"github.com/kennygrant/sanitize"
 	"time"
+	"io/ioutil"
 )
 
+const VERSION = "0.9.0"
+
+var cfg struct {
+	Id string `json:"id"`
+	Password string `json:"password"`
+	SmtpFull string `json:"smtpFull"`
+	Smtp string `json:"smtp"`
+}
+
 func main() {
+	log.Println("VERSION", VERSION)
+
 	email := "me"
 	gm := NewGmailManager(email)
 	gm.BuildService("client_secret.json", "token.json")
 
-
+	config("config.json")
+	
 	log.Println("Start")
 	for {
 		list := gm.GetMailList()
@@ -27,6 +40,18 @@ func main() {
 		time.Sleep(1 * time.Minute)
 	}
 	log.Println("End")
+}
+
+func config(filename string) {
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	
+	err = json.Unmarshal(bytes, &cfg)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 type Task struct {
@@ -66,7 +91,7 @@ func process(m *GmailMessage) {
 			fmt.Sprintf("Requested Build from %v is failed\n\n%v\n\n%v\n\n", task.From, err, body))
 		return
 	}
-	defer os.RemoveAll(id)
+//	defer os.RemoveAll(id)
 
 	log.Println(id, ">>", "Run", body)
 	cmd := exec.Command("../autobuild", body)

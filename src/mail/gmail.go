@@ -20,6 +20,7 @@ import (
 
 	"github.com/jaytaylor/html2text"
 
+	"net/smtp"
 )
 
 type GmailManager struct {
@@ -216,28 +217,17 @@ func ( m *GmailMessage) GetBodyTEXT() string {
 }
 
 func ( m *GmailMessage) Reply(to, subject, body string) {
+	em := email.NewMessage(subject, body)
+	em.From = cfg.Id
+	em.To = []string{ to }
 
-	if logfile, err := os.Open(m.Id + "/autobuild.log"); err == nil {
-		if bytes, err := ioutil.ReadAll(logfile); err != nil {
-			body += "Unable to read log file:\n" + err.Error()
-		} else {
-			body += string(bytes)
-		}
+	err := em.Attach(m.Id + "/autobuild.log")
+	if err != nil {
+		log.Println(err)
 	}
 
-	emsg := email.NewMessage(subject, body)
-	emsg.To = []string{to}
-
-	src := emsg.Bytes()
-	dst := make([]byte, base64.URLEncoding.EncodedLen(len(src)))
-	base64.URLEncoding.Encode(dst, src)
-
-	msg := gmail.Message{Raw:string(dst)}
-
-	_, err := m.gm.srv.Users.Messages.Send(m.gm.email, &msg).Do()
+	err = email.Send(cfg.SmtpFull, smtp.PlainAuth("", cfg.Id, cfg.Password, cfg.Smtp), em)
 	if err != nil {
-		log.Println(m.Id, ">>", "Mail Error", err)
-	} else {
-		log.Println(m.Id, ">>", "Mail")
+		log.Println(err)
 	}
 }
